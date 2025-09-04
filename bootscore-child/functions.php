@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @package Bootscore Child
  * @version 6.0.0
@@ -7,6 +6,11 @@
 
 // Exit if accessed directly
 defined('ABSPATH') || exit;
+
+/**
+ * Include AW-Theme components
+ */
+require_once get_stylesheet_directory() . '/aw-theme/wordpress-update-notice.php';
 
 /**
  * Enqueue scripts and styles
@@ -26,8 +30,3 @@ function bootscore_child_enqueue_styles() {
   $modificated_CustomJS = date('YmdHi', filemtime(get_stylesheet_directory() . '/assets/js/custom.js'));
   wp_enqueue_script('custom-js', get_stylesheet_directory_uri() . '/assets/js/custom.js', array('jquery'), $modificated_CustomJS, false, true);
 }
-
-/**
- * Include AW-Theme components
- */
-require_once get_stylesheet_directory() . '/aw-theme/wordpress-update-notice.php';
