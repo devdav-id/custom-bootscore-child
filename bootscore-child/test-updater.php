@@ -13,17 +13,59 @@ if (!isset($_GET['test']) || $_GET['test'] !== '1') {
 // Include WordPress
 require_once($_SERVER['DOCUMENT_ROOT'] . '/wp-config.php');
 
+// Manually register custom headers for testing
+add_filter('extra_theme_headers', function($headers) {
+  $headers['GitHub Theme URI'] = 'GitHub Theme URI';
+  $headers['GitHub Theme Folder'] = 'GitHub Theme Folder';
+  return $headers;
+});
+
 echo "<h2>WordPress GitHub Updater Test</h2>";
 
 // Test 1: WordPress functions
 echo "<h3>1. WordPress Environment Test</h3>";
 if (function_exists('wp_get_theme')) {
+    // Clear theme cache to force fresh read
+    wp_cache_delete('themes', 'themes');
+    
     $theme = wp_get_theme();
     echo "✅ WordPress loaded successfully<br>";
     echo "Current theme: " . $theme->get('Name') . "<br>";
     echo "Current version: " . $theme->get('Version') . "<br>";
     echo "GitHub URI: " . $theme->get('GitHub Theme URI') . "<br>";
     echo "GitHub Folder: " . $theme->get('GitHub Theme Folder') . "<br>";
+    
+    // Debug: Check if custom headers are registered
+    echo "<h4>Custom Headers Debug:</h4>";
+    $extra_headers = apply_filters('extra_theme_headers', array());
+    echo "Extra headers registered: " . (empty($extra_headers) ? "None" : implode(', ', array_keys($extra_headers))) . "<br>";
+    
+    // Debug: Manual header check
+    $style_css_path = get_stylesheet_directory() . '/style.css';
+    if (file_exists($style_css_path)) {
+        $style_content = file_get_contents($style_css_path);
+        if (preg_match('/GitHub Theme URI:\s*(.+)/i', $style_content, $matches)) {
+            echo "GitHub URI found in file: " . trim($matches[1]) . "<br>";
+        } else {
+            echo "❌ GitHub URI not found in style.css<br>";
+        }
+        if (preg_match('/GitHub Theme Folder:\s*(.+)/i', $style_content, $matches)) {
+            echo "GitHub Folder found in file: " . trim($matches[1]) . "<br>";
+        } else {
+            echo "❌ GitHub Folder not found in style.css<br>";
+        }
+    }
+    
+    // Force WordPress to re-read theme headers
+    echo "<h4>Forcing Theme Refresh:</h4>";
+    delete_site_transient('theme_roots');
+    wp_cache_flush();
+    
+    // Get theme again after cache clear
+    $theme_fresh = wp_get_theme();
+    echo "After cache clear - GitHub URI: " . $theme_fresh->get('GitHub Theme URI') . "<br>";
+    echo "After cache clear - GitHub Folder: " . $theme_fresh->get('GitHub Theme Folder') . "<br>";
+    
 } else {
     echo "❌ WordPress not loaded properly<br>";
 }
@@ -83,16 +125,28 @@ if (function_exists('get_site_transient')) {
     $update_themes = get_site_transient('update_themes');
     echo "Update themes transient exists: " . (empty($update_themes) ? "No" : "Yes") . "<br>";
     
-    if (!empty($update_themes) && isset($update_themes->response)) {
-        echo "Themes with updates available: " . count($update_themes->response) . "<br>";
+    if (!empty($update_themes)) {
+        echo "<h4>Transient Debug:</h4>";
+        echo "Checked themes: " . (isset($update_themes->checked) ? count($update_themes->checked) : 0) . "<br>";
+        echo "Response themes: " . (isset($update_themes->response) ? count($update_themes->response) : 0) . "<br>";
         
-        $theme_slug = get_option('stylesheet');
-        if (isset($update_themes->response[$theme_slug])) {
-            echo "🟢 <strong>This theme has an update available!</strong><br>";
-            $update_info = $update_themes->response[$theme_slug];
-            echo "New version: " . $update_info['new_version'] . "<br>";
-        } else {
-            echo "🔴 No update found for this theme in transient<br>";
+        if (isset($update_themes->checked)) {
+            echo "Checked array: <pre>" . print_r($update_themes->checked, true) . "</pre>";
+        }
+        
+        if (isset($update_themes->response)) {
+            echo "Response array: <pre>" . print_r($update_themes->response, true) . "</pre>";
+            
+            $theme_slug = get_option('stylesheet');
+            if (isset($update_themes->response[$theme_slug])) {
+                echo "🟢 <strong>This theme has an update available!</strong><br>";
+                $update_info = $update_themes->response[$theme_slug];
+                echo "New version: " . $update_info['new_version'] . "<br>";
+                echo "Package URL: " . $update_info['package'] . "<br>";
+            } else {
+                echo "🔴 No update found for this theme in transient<br>";
+                echo "Theme slug looking for: " . $theme_slug . "<br>";
+            }
         }
     }
 } else {
