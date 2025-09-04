@@ -21,6 +21,7 @@ add_filter('extra_theme_headers', function($headers) {
 });
 
 echo "<h2>WordPress GitHub Updater Test</h2>";
+echo "<h2>First Attempt at Update through Github</h2>";
 
 // Test 1: WordPress functions
 echo "<h3>1. WordPress Environment Test</h3>";
