@@ -29,3 +29,103 @@ function bootscore_child_enqueue_styles() {
   $modificated_CustomJS = date('YmdHi', filemtime(get_stylesheet_directory() . '/assets/js/custom.js'));
   wp_enqueue_script('custom-js', get_stylesheet_directory_uri() . '/assets/js/custom.js', array('jquery'), $modificated_CustomJS, false, true);
 }
+
+
+/**
+ * GitHub Theme Updater
+ * Lightweight updater for themes hosted on GitHub with subfolder structure
+ */
+if (!class_exists('GitHub_Theme_Updater')) {
+  
+  class GitHub_Theme_Updater {
+    
+    private $theme_slug;
+    private $theme_data;
+    private $github_repo;
+    private $github_folder;
+    private $version;
+    
+    public function __construct() {
+      $this->theme_slug = get_option('stylesheet');
+      $this->theme_data = wp_get_theme();
+      $this->github_repo = $this->theme_data->get('GitHub Theme URI');
+      $this->github_folder = $this->theme_data->get('GitHub Theme Folder');
+      $this->version = $this->theme_data->get('Version');
+      
+      if ($this->github_repo) {
+        add_filter('pre_set_site_transient_update_themes', array($this, 'check_for_update'));
+        add_filter('upgrader_source_selection', array($this, 'fix_source_folder'), 10, 4);
+      }
+    }
+    
+    /**
+     * Check for theme updates
+     */
+    public function check_for_update($transient) {
+      if (empty($transient->checked)) {
+        return $transient;
+      }
+      
+      $remote_version = $this->get_remote_version();
+      
+      if (version_compare($this->version, $remote_version, '<')) {
+        $transient->response[$this->theme_slug] = array(
+          'theme' => $this->theme_slug,
+          'new_version' => $remote_version,
+          'url' => 'https://github.com/' . $this->github_repo,
+          'package' => $this->get_download_url()
+        );
+      }
+      
+      return $transient;
+    }
+    
+    /**
+     * Get the latest version from GitHub
+     */
+    private function get_remote_version() {
+      $request = wp_remote_get('https://api.github.com/repos/' . $this->github_repo . '/contents/' . $this->github_folder . '/style.css');
+      
+      if (!is_wp_error($request) && wp_remote_retrieve_response_code($request) === 200) {
+        $body = wp_remote_retrieve_body($request);
+        $data = json_decode($body, true);
+        
+        if (isset($data['content'])) {
+          $content = base64_decode($data['content']);
+          
+          // Extract version from style.css content
+          if (preg_match('/Version:\s*(.+)/i', $content, $matches)) {
+            return trim($matches[1]);
+          }
+        }
+      }
+      
+      return $this->version;
+    }
+    
+    /**
+     * Get the download URL for the latest version
+     */
+    private function get_download_url() {
+      return 'https://github.com/' . $this->github_repo . '/archive/refs/heads/main.zip';
+    }
+    
+    /**
+     * Fix the source folder path during installation
+     */
+    public function fix_source_folder($source, $remote_source, $upgrader, $hook_extra) {
+      if (isset($hook_extra['theme']) && $hook_extra['theme'] === $this->theme_slug) {
+        $corrected_source = $remote_source . '/' . $this->github_folder . '/';
+        
+        if (is_dir($corrected_source)) {
+          return $corrected_source;
+        }
+      }
+      
+      return $source;
+    }
+  }
+  
+  // Initialize the updater
+  new GitHub_Theme_Updater();
+}
