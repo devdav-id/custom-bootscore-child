@@ -3,7 +3,7 @@
 /**
  * @package Bootscore Child
  *
- * @version 6.0.0
+ * @version 1.0.0
  */
 
 
@@ -137,5 +137,28 @@ if (!class_exists('GitHub_Theme_Updater')) {
 add_action('load-themes.php', function() {
   if (current_user_can('update_themes')) {
     delete_site_transient('update_themes');
+  }
+});
+
+/**
+ * Debug: Add admin notice to show updater status
+ */
+add_action('admin_notices', function() {
+  if (current_user_can('manage_options')) {
+    $current_page = basename($_SERVER['PHP_SELF']);
+    
+    // Only show on themes page
+    if ($current_page == 'themes.php') {
+      $theme = wp_get_theme();
+      $current_version = $theme->get('Version');
+      $github_repo = $theme->get('GitHub Theme URI');
+      
+      echo '<div class="notice notice-info is-dismissible">';
+      echo '<p><strong>GitHub Updater Debug:</strong><br>';
+      echo 'Current Version: ' . $current_version . '<br>';
+      echo 'GitHub Repo: ' . $github_repo . '<br>';
+      echo 'Theme Slug: ' . get_option('stylesheet') . '</p>';
+      echo '</div>';
+    }
   }
 });
