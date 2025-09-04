@@ -129,3 +129,13 @@ if (!class_exists('GitHub_Theme_Updater')) {
   // Initialize the updater
   new GitHub_Theme_Updater();
 }
+
+/**
+ * Force theme update check when visiting themes page
+ * This clears WordPress update caches to force fresh checks
+ */
+add_action('load-themes.php', function() {
+  if (current_user_can('update_themes')) {
+    delete_site_transient('update_themes');
+  }
+});
