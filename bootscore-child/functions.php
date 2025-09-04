@@ -267,7 +267,8 @@ add_action('admin_notices', function() {
       echo '<p><strong>GitHub Updater Debug:</strong><br>';
       echo 'Current Version: ' . $current_version . '<br>';
       echo 'GitHub Repo: ' . $github_repo . '<br>';
-      echo 'Theme Slug: ' . get_option('stylesheet') . '</p>';
+      echo 'Theme Slug: ' . get_option('stylesheet') . '<br>';
+      echo '<a href="themes.php?force_github_check=1" class="button">Force Update Check</a></p>';
       echo '</div>';
       
       // Force update check for debugging
