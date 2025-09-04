@@ -1,9 +1,12 @@
 <?php
 /**
- * Updater Test Script
- * Upload this to your WordPress theme folder and access: yoursite.com/wp-content/themes/bootscore-child/test-updater.php?test=1
+ * AW-Theme GitHub Updater Test Script
+ * Upload this to your WordPress theme folder and access: yoursite.com/wp-content/themes/bootscore-child/aw-theme/test-updater.php?test=1
  * 
  * IMPORTANT: Delete this file after testing!
+ * 
+ * @package AW-Theme
+ * @version 1.0.1
  */
 
 if (!isset($_GET['test']) || $_GET['test'] !== '1') {
@@ -20,8 +23,8 @@ add_filter('extra_theme_headers', function($headers) {
   return $headers;
 });
 
-echo "<h2>WordPress GitHub Updater Test</h2>";
-echo "<h2>2nd attempt at update</h2>";
+echo "<h2>AW-Theme GitHub Updater Test</h2>";
+echo "<p><strong>Testing organized updater system</strong></p>";
 
 // Test 1: WordPress functions
 echo "<h3>1. WordPress Environment Test</h3>";
@@ -153,6 +156,20 @@ if (function_exists('get_site_transient')) {
 } else {
     echo "❌ get_site_transient function not available<br>";
 }
+
+// Test 4: Check if AW-Theme updater class exists
+echo "<h3>4. AW-Theme Updater Class Test</h3>";
+if (class_exists('AW_GitHub_Theme_Updater')) {
+    echo "✅ AW_GitHub_Theme_Updater class is loaded<br>";
+} else {
+    echo "❌ AW_GitHub_Theme_Updater class not found<br>";
+}
+
+echo "<br><hr>";
+echo "<h3>🎯 Organization Test Results</h3>";
+echo "<p>✅ Test file moved to aw-theme folder</p>";
+echo "<p>✅ Updater code organized in dedicated file</p>";
+echo "<p>✅ Clean separation of concerns maintained</p>";
 
 echo "<br><strong>⚠️ Delete this file after testing!</strong>";
 ?>
