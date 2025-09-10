@@ -159,10 +159,6 @@ a.navbar-brand {
   background: $white;
 }
 
-
-
-
-
 .alignfull {
 	/* width: 100%; */
 }
@@ -172,4 +168,16 @@ a.navbar-brand {
 }
 .align {
 	max-width: var(--wp--style--global--content-size);
+}
+
+
+
+
+
+
+
+
+
+#content.site-content {
+	opacity: 0.5;
 }
