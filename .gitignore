@@ -1,12 +1,13 @@
 .DS_Store
-node_modules/
-package-lock.json
-.prettierrc
-assets/css/main.css
-assets/css/main.css.map
-assets/css/editor.css
-assets/css/editor.css.map
+bootscore-child/.DS_Store
+bootscore-child/node_modules/
+bootscore-child/package-lock.json
+bootscore-child/.prettierrc
+bootscore-child/assets/css/main.css
+bootscore-child/assets/css/main.css.map
+bootscore-child/assets/css/editor.css
+bootscore-child/assets/css/editor.css.map
 
 bootscore-child/aw-blocks/*
 bootscore-child/aw-custom/*
-bootscore-child/excluded-og-child-files/
+excluded-og-child-files/
