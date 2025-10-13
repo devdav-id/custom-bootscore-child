@@ -3,10 +3,6 @@
 /**
  * WordPress GitHub Theme Updater
  * 
- * @package Bootscore Child
- * @author  AW-Dev
- * @version 1.0.1
- * 
  * 1. Register custom headers (GitHub Theme URI, GitHub Theme Folder)
  * 2. Initialize updater class and read GitHub config
  * 3. Check GitHub API for newer versions
@@ -81,14 +77,12 @@ if (!class_exists('AW_GitHub_Theme_Updater')) {
 		 */
 		public function check_for_update($transient)
 		{
-			// Debug logging
 			error_log("AW GitHub Updater: check_for_update called");
-			error_log("AW GitHub Updater: Repo = " . $this->github_repo);
-			error_log("AW GitHub Updater: Folder = " . $this->github_folder);
+			// error_log("AW GitHub Updater: Repo = " . $this->github_repo);
+			// error_log("AW GitHub Updater: Folder = " . $this->github_folder);
 			error_log("AW GitHub Updater: Version = " . $this->version);
 
 			if (empty($transient->checked)) {
-				error_log("AW GitHub Updater: No checked themes, returning");
 				return $transient;
 			}
 
@@ -96,8 +90,7 @@ if (!class_exists('AW_GitHub_Theme_Updater')) {
 			error_log("AW GitHub Updater: Remote version = " . $remote_version);
 
 			if (version_compare($this->version, $remote_version, '<')) {
-				error_log("AW GitHub Updater: Adding update to transient");
-
+				
 				$update_data = array(
 					'theme' => $this->theme_slug,
 					'new_version' => $remote_version,
@@ -113,9 +106,9 @@ if (!class_exists('AW_GitHub_Theme_Updater')) {
 				}
 				$transient->checked[$this->theme_slug] = $this->version;
 
-				error_log("AW GitHub Updater: Update data = " . print_r($update_data, true));
+				// error_log("AW GitHub Updater: Update data = " . print_r($update_data, true));
 			} else {
-				error_log("AW GitHub Updater: No update needed");
+				// error_log("AW GitHub Updater: No update needed");
 			}
 
 			return $transient;
@@ -130,7 +123,7 @@ if (!class_exists('AW_GitHub_Theme_Updater')) {
 			$update_themes = get_site_transient('update_themes');
 
 			if (!empty($update_themes) && isset($update_themes->response[$this->theme_slug])) {
-				error_log("AW GitHub Updater: Update available in transient for theme display");
+				// error_log("AW GitHub Updater: Update available in transient for theme display");
 				add_action('admin_notices', array($this, 'admin_notice_update'));
 			}
 		}
@@ -180,35 +173,30 @@ if (!class_exists('AW_GitHub_Theme_Updater')) {
 		 */
 		public function fix_source_folder($source, $remote_source, $upgrader, $hook_extra)
 		{
-			error_log("AW GitHub Updater: fix_source_folder called");
-			error_log("AW GitHub Updater: source = " . $source);
-			error_log("AW GitHub Updater: remote_source = " . $remote_source);
 
 			if (isset($hook_extra['theme']) && $hook_extra['theme'] === $this->theme_slug) {
-				error_log("AW GitHub Updater: This is our theme update");
 
 				// GitHub creates folder with repo-name-branch format
 				$expected_folder = 'custom-bootscore-child-main';
 				$corrected_source = $remote_source . '/' . $expected_folder . '/' . $this->github_folder . '/';
-				error_log("AW GitHub Updater: corrected_source = " . $corrected_source);
+				// error_log("AW GitHub Updater: corrected_source = " . $corrected_source);
 
 				if (is_dir($corrected_source)) {
-					error_log("AW GitHub Updater: Corrected source directory exists, using it");
 					return $corrected_source;
 				} else {
-					error_log("AW GitHub Updater: Corrected source directory does not exist");
+					// error_log("AW GitHub Updater: Corrected source directory does not exist");
 
 					// Try to find the actual folder structure
 					if (is_dir($remote_source)) {
 						$dirs = scandir($remote_source);
 						foreach ($dirs as $dir) {
 							if ($dir !== '.' && $dir !== '..' && is_dir($remote_source . '/' . $dir)) {
-								error_log("AW GitHub Updater: Found directory: " . $dir);
+								// error_log("AW GitHub Updater: Found directory: " . $dir);
 
 								// Check if this directory contains our theme folder
 								$potential_theme_path = $remote_source . '/' . $dir . '/' . $this->github_folder . '/';
 								if (is_dir($potential_theme_path)) {
-									error_log("AW GitHub Updater: Found theme in: " . $potential_theme_path);
+									// error_log("AW GitHub Updater: Found theme in: " . $potential_theme_path);
 									return $potential_theme_path;
 								}
 							}
@@ -217,7 +205,6 @@ if (!class_exists('AW_GitHub_Theme_Updater')) {
 				}
 			}
 
-			error_log("AW GitHub Updater: Returning original source");
 			return $source;
 		}
 	}
